@@ -1,0 +1,173 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTimestampsOnCreate(data) {
+      return data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidTimestampsOnUpdate(data, oldData) {
+      return data.createdAt == oldData.createdAt &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidUserProfile(data) {
+      return data.gender is string && data.gender in ['male', 'female'] &&
+             data.age is int && data.age >= 10 && data.age <= 120 &&
+             (data.heightCm is int || data.heightCm is float) && data.heightCm >= 100 && data.heightCm <= 250 &&
+             (data.weightKg is int || data.weightKg is float) && data.weightKg >= 25 && data.weightKg <= 300 &&
+             data.activityLevel is string && data.activityLevel in ['sedentary', 'light', 'moderate', 'active', 'very_active'] &&
+             data.goalType is string && data.goalType in ['lose', 'maintain', 'gain'] &&
+             data.targetWaterMl is int && data.targetWaterMl >= 500 && data.targetWaterMl <= 10000 &&
+             data.waterDrankMl is int && data.waterDrankMl >= 0 && data.waterDrankMl <= 15000 &&
+             data.dailyStepGoal is int && data.dailyStepGoal >= 1000 && data.dailyStepGoal <= 100000 &&
+             data.doroCashMinor is int && data.doroCashMinor >= -100000000000 && data.doroCashMinor <= 100000000000 &&
+             data.doroWalletMinor is int && data.doroWalletMinor >= -100000000000 && data.doroWalletMinor <= 100000000000;
+    }
+
+    function isValidHealthRecord(data) {
+      return data.metricType is string && data.metricType.size() >= 1 && data.metricType.size() <= 60 &&
+             (data.value is int || data.value is float) && data.value >= 0 && data.value <= 1000000 &&
+             data.unit is string && data.unit.size() >= 1 && data.unit.size() <= 40 &&
+             data.localDate is string && data.localDate.size() >= 8 && data.localDate.size() <= 20 &&
+             data.sourceType is string && data.sourceType.size() >= 1 && data.sourceType.size() <= 60 &&
+             data.sourceName is string && data.sourceName.size() >= 1 && data.sourceName.size() <= 120 &&
+             data.dedupStatus is string && data.dedupStatus in ['unique_primary', 'suppressed_duplicate'] &&
+             (!('deviceModel' in data) || data.deviceModel == null || (data.deviceModel is string && data.deviceModel.size() <= 120)) &&
+             (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() <= 500));
+    }
+
+    function isValidFoodLog(data) {
+      return data.mealSlot is string && data.mealSlot in ['breakfast', 'lunch', 'dinner', 'snack'] &&
+             data.foodName is string && data.foodName.size() >= 1 && data.foodName.size() <= 150 &&
+             (data.grams is int || data.grams is float) && data.grams > 0 && data.grams <= 5000 &&
+             (data.calories is int || data.calories is float) && data.calories >= 0 && data.calories <= 10000 &&
+             (data.proteinG is int || data.proteinG is float) && data.proteinG >= 0 && data.proteinG <= 1000 &&
+             (data.carbsG is int || data.carbsG is float) && data.carbsG >= 0 && data.carbsG <= 1000 &&
+             (data.fatG is int || data.fatG is float) && data.fatG >= 0 && data.fatG <= 1000 &&
+             (data.fiberG is int || data.fiberG is float) && data.fiberG >= 0 && data.fiberG <= 500 &&
+             data.localDate is string && data.localDate.size() >= 8 && data.localDate.size() <= 20 &&
+             data.isAiRecognized is bool &&
+             (!('healthTip' in data) || data.healthTip == null || (data.healthTip is string && data.healthTip.size() <= 500));
+    }
+
+    function isValidWorkoutSession(data) {
+      return data.sportId is string && data.sportId.size() >= 1 && data.sportId.size() <= 80 &&
+             data.sportName is string && data.sportName.size() >= 1 && data.sportName.size() <= 150 &&
+             data.durationMin is int && data.durationMin >= 1 && data.durationMin <= 1440 &&
+             data.intensity is string && data.intensity in ['light', 'moderate', 'vigorous'] &&
+             data.burnedKcal is int && data.burnedKcal >= 0 && data.burnedKcal <= 20000 &&
+             data.localDate is string && data.localDate.size() >= 8 && data.localDate.size() <= 20 &&
+             (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() <= 500));
+    }
+
+    function isValidYawmiItem(data) {
+      return data.itemType is string && data.itemType in ['task', 'habit', 'event', 'expense', 'income', 'planned_purchase'] &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 200 &&
+             data.priority is string && data.priority in ['low', 'medium', 'high', 'urgent'] &&
+             data.completed is bool &&
+             data.amountMinor is int && data.amountMinor >= 0 && data.amountMinor <= 100000000000 &&
+             data.localDate is string && data.localDate.size() >= 8 && data.localDate.size() <= 20 &&
+             (!('subtitle' in data) || data.subtitle == null || (data.subtitle is string && data.subtitle.size() <= 400));
+    }
+
+    match /users/{userId}/profile/{docId} {
+      allow get: if isOwner(userId) && isValidId(docId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(docId) &&
+                       incoming().keys().hasAll(['gender', 'age', 'heightCm', 'weightKg', 'activityLevel', 'goalType', 'targetWaterMl', 'waterDrankMl', 'dailyStepGoal', 'doroCashMinor', 'doroWalletMinor', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['gender', 'age', 'heightCm', 'weightKg', 'activityLevel', 'goalType', 'targetWaterMl', 'waterDrankMl', 'dailyStepGoal', 'doroCashMinor', 'doroWalletMinor', 'createdAt', 'updatedAt']) &&
+                       isValidTimestampsOnCreate(incoming()) &&
+                       isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidId(docId) &&
+                       isValidUserProfile(incoming()) &&
+                       isValidTimestampsOnUpdate(incoming(), existing()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['gender', 'age', 'heightCm', 'weightKg', 'activityLevel', 'goalType', 'targetWaterMl', 'waterDrankMl', 'dailyStepGoal', 'doroCashMinor', 'doroWalletMinor', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(docId);
+    }
+
+    match /users/{userId}/health_records/{recordId} {
+      allow get: if isOwner(userId) && isValidId(recordId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(recordId) &&
+                       incoming().keys().hasAll(['metricType', 'value', 'unit', 'localDate', 'sourceType', 'sourceName', 'dedupStatus', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['metricType', 'value', 'unit', 'localDate', 'sourceType', 'sourceName', 'deviceModel', 'dedupStatus', 'notes', 'createdAt', 'updatedAt']) &&
+                       isValidTimestampsOnCreate(incoming()) &&
+                       isValidHealthRecord(incoming());
+      allow update: if isOwner(userId) && isValidId(recordId) &&
+                       isValidHealthRecord(incoming()) &&
+                       isValidTimestampsOnUpdate(incoming(), existing()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['value', 'unit', 'localDate', 'sourceType', 'sourceName', 'deviceModel', 'dedupStatus', 'notes', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(recordId);
+    }
+
+    match /users/{userId}/food_logs/{logId} {
+      allow get: if isOwner(userId) && isValidId(logId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(logId) &&
+                       incoming().keys().hasAll(['mealSlot', 'foodName', 'grams', 'calories', 'proteinG', 'carbsG', 'fatG', 'fiberG', 'localDate', 'isAiRecognized', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['mealSlot', 'foodName', 'grams', 'calories', 'proteinG', 'carbsG', 'fatG', 'fiberG', 'healthTip', 'localDate', 'isAiRecognized', 'createdAt', 'updatedAt']) &&
+                       isValidTimestampsOnCreate(incoming()) &&
+                       isValidFoodLog(incoming());
+      allow update: if isOwner(userId) && isValidId(logId) &&
+                       isValidFoodLog(incoming()) &&
+                       isValidTimestampsOnUpdate(incoming(), existing()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['mealSlot', 'foodName', 'grams', 'calories', 'proteinG', 'carbsG', 'fatG', 'fiberG', 'healthTip', 'localDate', 'isAiRecognized', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(logId);
+    }
+
+    match /users/{userId}/workouts/{workoutId} {
+      allow get: if isOwner(userId) && isValidId(workoutId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(workoutId) &&
+                       incoming().keys().hasAll(['sportId', 'sportName', 'durationMin', 'intensity', 'burnedKcal', 'localDate', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['sportId', 'sportName', 'durationMin', 'intensity', 'burnedKcal', 'localDate', 'notes', 'createdAt', 'updatedAt']) &&
+                       isValidTimestampsOnCreate(incoming()) &&
+                       isValidWorkoutSession(incoming());
+      allow update: if isOwner(userId) && isValidId(workoutId) &&
+                       isValidWorkoutSession(incoming()) &&
+                       isValidTimestampsOnUpdate(incoming(), existing()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['sportId', 'sportName', 'durationMin', 'intensity', 'burnedKcal', 'localDate', 'notes', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(workoutId);
+    }
+
+    match /users/{userId}/tasks/{taskId} {
+      allow get: if isOwner(userId) && isValidId(taskId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(taskId) &&
+                       incoming().keys().hasAll(['itemType', 'title', 'priority', 'completed', 'amountMinor', 'localDate', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['itemType', 'title', 'subtitle', 'priority', 'completed', 'amountMinor', 'localDate', 'createdAt', 'updatedAt']) &&
+                       isValidTimestampsOnCreate(incoming()) &&
+                       isValidYawmiItem(incoming());
+      allow update: if isOwner(userId) && isValidId(taskId) &&
+                       isValidYawmiItem(incoming()) &&
+                       isValidTimestampsOnUpdate(incoming(), existing()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['itemType', 'title', 'subtitle', 'priority', 'completed', 'amountMinor', 'localDate', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(taskId);
+    }
+  }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer golden health ring -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M54,24 C70.57,24 84,37.43 84,54 C84,70.57 70.57,84 54,84 C37.43,84 24,70.57 24,54 C24,37.43 37.43,24 54,24 Z M54,30 C40.75,30 30,40.75 30,54 C30,67.25 40.75,78 54,78 C67.25,78 78,67.25 78,54 C78,40.75 67.25,30 54,30 Z" />
+    <!-- Bold Heart + Pulse Wave Silhouette -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M54,71 L49.6,67.0 C39.2,57.6 33,51.9 33,44.5 C33,38.6 37.6,34 43.5,34 C46.8,34 50.0,35.5 52.1,38.0 L54,40.2 L55.9,38.0 C58.0,35.5 61.2,34 64.5,34 C70.4,34 75,38.6 75,44.5 C75,51.9 68.8,57.6 58.4,67.0 L54,71 Z" />
+    <!-- Inner White Pulse Line -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M37,51 L45,51 L49,42 L54,59 L58,47 L61,51 L71,51 L71,54 L59.5,54 L57.5,50 L53.5,63 L48.5,46 L46.5,54 L37,54 Z" />
+</vector>

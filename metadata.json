@@ -1,0 +1,6 @@
+{
+  "name": "YAWMI",
+  "description": "Smart health, fitness, Bluetooth wearable sync, Health Connect, AI food photo logging, PDF reports, and personal life organizer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

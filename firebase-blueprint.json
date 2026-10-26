@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User body metrics, daily goals, and DORO wallet balances.",
+      "type": "object",
+      "properties": {
+        "gender": { "type": "string", "enum": ["male", "female"] },
+        "age": { "type": "integer" },
+        "heightCm": { "type": "number" },
+        "weightKg": { "type": "number" },
+        "activityLevel": { "type": "string", "enum": ["sedentary", "light", "moderate", "active", "very_active"] },
+        "goalType": { "type": "string", "enum": ["lose", "maintain", "gain"] },
+        "targetWaterMl": { "type": "integer" },
+        "waterDrankMl": { "type": "integer" },
+        "dailyStepGoal": { "type": "integer" },
+        "doroCashMinor": { "type": "integer" },
+        "doroWalletMinor": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" }
+      },
+      "required": ["gender", "age", "heightCm", "weightKg", "activityLevel", "goalType", "targetWaterMl", "waterDrankMl", "dailyStepGoal", "doroCashMinor", "doroWalletMinor", "createdAt", "updatedAt"]
+    },
+    "HealthRecord": {
+      "title": "HealthRecord",
+      "description": "Normalized health metric from BLE wearable, Health Connect, Google Fit, or sensor.",
+      "type": "object",
+      "properties": {
+        "metricType": { "type": "string" },
+        "value": { "type": "number" },
+        "unit": { "type": "string" },
+        "localDate": { "type": "string" },
+        "sourceType": { "type": "string" },
+        "sourceName": { "type": "string" },
+        "deviceModel": { "type": "string" },
+        "dedupStatus": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" }
+      },
+      "required": ["metricType", "value", "unit", "localDate", "sourceType", "sourceName", "dedupStatus", "createdAt", "updatedAt"]
+    },
+    "FoodLog": {
+      "title": "FoodLog",
+      "description": "Logged meal with macronutrients and optional AI photo recognition metadata.",
+      "type": "object",
+      "properties": {
+        "mealSlot": { "type": "string", "enum": ["breakfast", "lunch", "dinner", "snack"] },
+        "foodName": { "type": "string" },
+        "grams": { "type": "number" },
+        "calories": { "type": "number" },
+        "proteinG": { "type": "number" },
+        "carbsG": { "type": "number" },
+        "fatG": { "type": "number" },
+        "fiberG": { "type": "number" },
+        "healthTip": { "type": "string" },
+        "localDate": { "type": "string" },
+        "isAiRecognized": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" }
+      },
+      "required": ["mealSlot", "foodName", "grams", "calories", "proteinG", "carbsG", "fatG", "fiberG", "localDate", "isAiRecognized", "createdAt", "updatedAt"]
+    },
+    "WorkoutSession": {
+      "title": "WorkoutSession",
+      "description": "Logged sport or workout session with MET calorie burn.",
+      "type": "object",
+      "properties": {
+        "sportId": { "type": "string" },
+        "sportName": { "type": "string" },
+        "durationMin": { "type": "integer" },
+        "intensity": { "type": "string", "enum": ["light", "moderate", "vigorous"] },
+        "burnedKcal": { "type": "integer" },
+        "localDate": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" }
+      },
+      "required": ["sportId", "sportName", "durationMin", "intensity", "burnedKcal", "localDate", "createdAt", "updatedAt"]
+    },
+    "YawmiItem": {
+      "title": "YawmiItem",
+      "description": "Unified YAWMI personal item: task, habit, appointment, or DORO financial entry.",
+      "type": "object",
+      "properties": {
+        "itemType": { "type": "string", "enum": ["task", "habit", "event", "expense", "income", "planned_purchase"] },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+        "completed": { "type": "boolean" },
+        "amountMinor": { "type": "integer" },
+        "localDate": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" }
+      },
+      "required": ["itemType", "title", "priority", "completed", "amountMinor", "localDate", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/profile/{docId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User body profile, hydration, step goal, and DORO balances."
+    },
+    "/users/{userId}/health_records/{recordId}": {
+      "schema": { "$ref": "#/entities/HealthRecord" },
+      "description": "Normalized health and vital records."
+    },
+    "/users/{userId}/food_logs/{logId}": {
+      "schema": { "$ref": "#/entities/FoodLog" },
+      "description": "Daily food and AI photo nutrition logs."
+    },
+    "/users/{userId}/workouts/{workoutId}": {
+      "schema": { "$ref": "#/entities/WorkoutSession" },
+      "description": "Sports and workout sessions."
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/YawmiItem" },
+      "description": "Personal tasks, habits, events, and DORO finance records."
+    }
+  }
+}
